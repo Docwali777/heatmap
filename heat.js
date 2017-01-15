@@ -2,8 +2,8 @@
 
 let url = "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json";
 
-let margin = {top: 90, bottom: 70, left: 50, right: 50},
-    w = 1400 - margin.left - margin.right,
+let margin = {top: 40, bottom: 70, left: 100, right: 70},
+    w = 800 - margin.left - margin.right,
     h = 500 - margin.top - margin.bottom,
     padding = 30;
 
@@ -13,7 +13,9 @@ var svg = d3.selectAll("body").append("svg")
 .attr(`transform`, `translate(${margin.left}, ${margin.top})`)
 
 var parseTime = d3.timeParse("%m")
-var convertToMonth =d3.timeFormat("%b")
+var convertToMonth = d3.timeFormat("%")
+
+var months = ["January", "February", 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 //JSON fx
 d3.json(url, function(data){
@@ -23,15 +25,15 @@ d3.json(url, function(data){
 
 var datum = data.monthlyVariance
 
+datum.forEach(function(d){
+    d.month = parseTime(d.month).getMonth()
+})
 
+console.log(datum[datum.length-1])
 
-var tip = d3.tip()
-  .attr('class', 'd3-tip')
-  .offset([-10, 0])
-  .html(function(d) {
-d.month = convertToMonth(parseTime(d.month))
-    return `<strong>${d.month} ${d.year} </strong>  <br> Temp: ${data.baseTemperature + d.variance} &#8451; <br> Variance: ${d.variance} `;
-  })
+var tip = d3.tip().attr("class", "d3-tip").html(function(d) {
+  return `<strong>${months[d.month]} ${d.year} </strong>  <br> Temp: ${data.baseTemperature + d.variance} &#8451; <br> Variance: ${d.variance} `;
+ })
 
 console.log(datum[0])
 
@@ -48,16 +50,16 @@ var xScale = d3.scaleLinear()
                 .domain([minYear, maxYear] )
                 .range([0, w])
 
+
 var yScale = d3.scaleLinear()
               .domain([12, 0])
               .range([h, 0])
-//data.baseTemperature
-
+var test = data.baseTemperature
 
 rect.attr("x", function(d){return xScale(d.year)})
     .attr("y", function(d){return yScale(d.month)})
     .attr("width", yScale(w/datum.length))
-    .attr("height", function(d){return yScale(d.month)})
+    .attr("height", yScale((datum.length/12)/h))
     .attr("fill", function(d){
       if (data.baseTemperature + d.variance >1 && data.baseTemperature + d.variance < 2){
         return "rgb(255,242,0)"
@@ -112,12 +114,16 @@ rect.attr("x", function(d){return xScale(d.year)})
         return "brown"
       } //13 - 14
 })
-  .on('mouseover', tip.show)
+    .on('mouseover', tip.show)
   .on('mouseout', tip.hide);//filling color to each rect based on baseTemperature - variance
 
-svg.append("g").call(d3.axisBottom(xScale)).attr("transform", `translate(0, ${h + margin.top})`)
+svg.append("g").call(d3.axisBottom(xScale)).attr("transform", `translate(0, ${h-10})`)
 
-svg.append("g").call(d3.axisLeft(yScale)).attr("transform", `translate(0, 50)`)
+var z = d3.scaleTime()
+    .domain([new Date(2012, 0, 1), new Date(2012, 11, 31)])
+    .range([0, h ]);
+
+svg.append("g").call(d3.axisLeft(z).ticks(20).tickFormat(d3.timeFormat("%B"))).attr("transform", `translate(0, 10)`)
 
 
 })
