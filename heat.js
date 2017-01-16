@@ -2,12 +2,12 @@
 
 let url = "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json";
 
-let margin = {top: 40, bottom: 70, left: 100, right: 70},
-    w = 800 - margin.left - margin.right,
+let margin = {top: 40, bottom: 70, left: 120, right: 70},
+    w = 1200 - margin.left - margin.right,
     h = 500 - margin.top - margin.bottom,
     padding = 30;
 
-var svg = d3.selectAll("body").append("svg")
+var svg = d3.select(".map").append("svg")
 .attr(`width`, `${w + margin.left + margin.right}`)
 .attr("height", `${h + margin.top + margin.bottom}`).append("g")
 .attr(`transform`, `translate(${margin.left}, ${margin.top})`)
@@ -16,6 +16,10 @@ var parseTime = d3.timeParse("%m")
 var convertToMonth = d3.timeFormat("%")
 
 var months = ["January", "February", 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+var colors  = ["rgb(255,242,0)", "rgb(248,147,31)", "rgb(244,101,35)", "rgb(248,147,31)", "rgb(237,27,36)", "rgb(146,39,143)", "rgb(101,45,146)", "rgb(38,33,99)", "rgb(46,48,148)", "rgb(9,179,205)", "rgb(33,178,75)",  "rgb(140,198,62)","brown"];
+
+
 
 //JSON fx
 d3.json(url, function(data){
@@ -35,9 +39,6 @@ var tip = d3.tip().attr("class", "d3-tip").html(function(d) {
   return `<strong>${months[d.month]} ${d.year} </strong>  <br> Temp: ${data.baseTemperature + d.variance} &#8451; <br> Variance: ${d.variance} `;
  })
 
-console.log(datum[0])
-
-console.log(d3.max(datum, function(d){return convertToMonth(parseTime(d.month))}))
 
 var rect = svg.selectAll("rect").data(datum).enter().append("rect");
 
@@ -123,7 +124,47 @@ var z = d3.scaleTime()
     .domain([new Date(2012, 0, 1), new Date(2012, 11, 31)])
     .range([0, h ]);
 
+
+
 svg.append("g").call(d3.axisLeft(z).ticks(20).tickFormat(d3.timeFormat("%B"))).attr("transform", `translate(0, 10)`)
+
+
+svg.append("text").text("Months")
+.attr("transform", `rotate(-90)`)
+.attr("x", `${-h/2}`)
+.attr("y", `${-70}`)
+
+
+svg.append("text").text("Years (1753 - 2015)").attr("transform", `translate(${w/2 - 100}, ${h + margin.top})`)
+
+var ordinal = d3.scaleOrdinal()
+          .domain([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+          .range(["rgb(255,242,0)", "rgb(248,147,31)", "rgb(244,101,35)", "rgb(248,147,31)", "rgb(237,27,36)", "rgb(146,39,143)", "rgb(101,45,146)", "rgb(38,33,99)", "rgb(46,48,148)", "rgb(9,179,205)", "rgb(33,178,75)",  "rgb(140,198,62)","brown"]);
+
+          var legend = d3.select(".legendOrdinal").append("svg").attr("width", 300).attr("height", 100)
+
+          var legendScale = d3.scaleLinear()
+                              .domain([1, 13])
+                              .range([1, 240])
+
+          var rect = legend.selectAll("rect").data(colors).enter().append("rect")
+
+
+          rect.attr("fill", function(d){return d})
+                .attr("x", function(d, i){return (i*20) + 20})
+                .attr("y", 20)
+                .attr("height", 20)
+                .attr("width", 20)
+
+svg.append("text").text("Heat Map Measuring Temperature Variantion from Jan 1753 - September 2015 ").attr("class", "mainTitle").attr("transform", `translate(${w/2 - 250}, -10)`)
+
+
+    legend.append("text").attr("class", "legendText").html(`Variations in Temperature  baseline of 8.66 &#8451`).attr("transform", `translate(20, 80)`)
+
+
+
+          legend.append("g").call(d3.axisBottom(legendScale).ticks(13)).attr("transform", `translate(30, 40)`)
+
 
 
 })

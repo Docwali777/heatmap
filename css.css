@@ -1,8 +1,27 @@
 .d3-tip {
-  background-color: rgba(0, 0, 0, 1);
+  background-color: rgba(0, 0, 0, 0.8);
   color: white;
   margin: 10px;
   border: 2px solid white;
 text-align: center;
   width: 300px
+}
+
+.legendOrdinal {
+  width: 300px;
+  margin-left: 600px;
+  margin-top: -20px;
+  text-align: center;
+  height: 120px;
+    border: 1px solid black
+}
+
+.legendText  {
+  text-align: left;
+  font-size: 15px;
+  text-align: center;
+}
+
+.mainTitle {
+  font-weight: bolder;
 }
